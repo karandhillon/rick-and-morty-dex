@@ -8,15 +8,17 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Error
+import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Loading
+import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Success
 import com.karandhillon.rickandmortydex.network.RickAndMortyApiService
+import com.karandhillon.rickandmortydex.ui.CharacterList
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -48,20 +50,16 @@ class MainActivity : ComponentActivity() {
                     val state = characterListViewModel.characterListUiState.collectAsState()
 
                     when (state.value) {
-                        is CharacterListViewModel.CharacterListUiState.Loading -> {
+                        is Loading -> {
                             Text("Loading, please wait!")
                         }
 
-                        is CharacterListViewModel.CharacterListUiState.Success -> {
-                            LazyColumn {
-                                items(items = (state.value as CharacterListViewModel.CharacterListUiState.Success).characters) {
-                                    Text(it.name)
-                                }
-                            }
+                        is Success -> {
+                            CharacterList((state.value as Success).characters)
                         }
 
-                        is CharacterListViewModel.CharacterListUiState.Error -> {
-                            Text("Some error occurred: ${(state.value as CharacterListViewModel.CharacterListUiState.Error).message}")
+                        is Error -> {
+                            Text("Some error occurred: ${(state.value as Error).message}")
                         }
                     }
                 }
