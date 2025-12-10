@@ -1,5 +1,6 @@
 package com.karandhillon.rickandmortydex.ui
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +16,7 @@ fun CharacterList(
     characterList: List<Character>,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(8.dp)) {
         items(items = characterList, key = { character -> character.id }) { character ->
             CharacterItem(character)
             Spacer(Modifier.padding(4.dp))
