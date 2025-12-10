@@ -1,4 +1,4 @@
-package com.karandhillon.rickandmortydex.network
+package com.karandhillon.rickandmortydex.network.model
 
 data class CharacterListResponse(
     val info: PageInfo,

@@ -1,4 +1,4 @@
-package com.karandhillon.rickandmortydex.network
+package com.karandhillon.rickandmortydex.network.model
 
 data class Character(
     val id: Int,
@@ -12,5 +12,5 @@ data class Character(
     val image: String,
     val episode: List<String>,
     val url: String,
-    val created: String
+    val created: String,
 )
