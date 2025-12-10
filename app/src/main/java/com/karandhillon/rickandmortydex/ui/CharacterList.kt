@@ -12,10 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.karandhillon.rickandmortydex.network.model.Character
 
 @Composable
-fun CharacterList(
-    characterList: List<Character>,
-    modifier: Modifier = Modifier,
-) {
+fun CharacterList(characterList: List<Character>) {
     LazyColumn(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(8.dp)) {
         items(items = characterList, key = { character -> character.id }) { character ->
             CharacterItem(character)
