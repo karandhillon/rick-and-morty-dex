@@ -2,17 +2,25 @@ package com.karandhillon.rickandmortydex.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.karandhillon.rickandmortydex.R
 import com.karandhillon.rickandmortydex.network.model.Character
 import com.karandhillon.rickandmortydex.network.model.LocationInfo
 import kotlin.random.Random
@@ -27,24 +35,36 @@ fun CharacterItem(character: Character) {
             Modifier
                 .background(color = color)
                 .fillMaxWidth()
-                .padding(7.dp),
-        horizontalAlignment = Alignment.Start,
+                .padding(8.dp),
     ) {
         CharacterName(character.name)
-        CharacterProperty(property = "ID: ${character.id}")
-        CharacterProperty(property = "Type: " + character.type)
-        CharacterProperty(property = "Gender: " + character.gender)
-        CharacterProperty(property = "Location: " + character.location)
-        CharacterProperty(property = "Species: " + character.status)
-        CharacterProperty(property = "Origin: " + character.origin.name)
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(3f),
+            ) {
+                CharacterProperty(property = "ID: ${character.id}")
+                CharacterProperty(property = "Type: " + character.type)
+                CharacterProperty(property = "Gender: " + character.gender)
+                CharacterProperty(property = "Species: " + character.status)
+                CharacterProperty(property = "Origin: " + character.origin.name)
+            }
+
+            AsyncImage(
+                model = character.image,
+                placeholder = painterResource(R.drawable.ic_launcher_background),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.clip(CircleShape).size(120.dp),
+            )
+        }
     }
 }
 
 @Composable
-fun CharacterName(
-    characterName: String,
-    modifier: Modifier = Modifier,
-) {
+fun CharacterName(characterName: String) {
     Text(
         text = "Name: $characterName",
         style = MaterialTheme.typography.headlineSmall,
@@ -52,11 +72,8 @@ fun CharacterName(
 }
 
 @Composable
-fun CharacterProperty(
-    property: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(text = property, Modifier.padding(top = 4.dp, bottom = 4.dp))
+fun CharacterProperty(property: String) {
+    Text(text = property)
 }
 
 @Preview
