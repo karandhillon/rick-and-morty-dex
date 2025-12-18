@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Error
-import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Loading
-import com.karandhillon.rickandmortydex.CharacterListViewModel.CharacterListUiState.Success
 import com.karandhillon.rickandmortydex.network.RickAndMortyApiService
 import com.karandhillon.rickandmortydex.ui.CharacterList
+import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Error
+import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Loading
+import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Success
+import com.karandhillon.rickandmortydex.ui.theme.RickAndMortyDexTheme
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -42,24 +43,26 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        characterListViewModel.fetchCharacters()
-
         setContent {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                Column(modifier = Modifier.padding(innerPadding)) {
-                    val state = characterListViewModel.characterListUiState.collectAsState()
+            RickAndMortyDexTheme {
+                characterListViewModel.fetchCharacters()
 
-                    when (state.value) {
-                        is Loading -> {
-                            Text("Loading, please wait!")
-                        }
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Column(modifier = Modifier.padding(innerPadding)) {
+                        val state = characterListViewModel.characterListUiState.collectAsStateWithLifecycle()
 
-                        is Success -> {
-                            CharacterList((state.value as Success).characters)
-                        }
+                        when (state.value) {
+                            is Loading -> {
+                                Text("Loading, please wait!")
+                            }
 
-                        is Error -> {
-                            Text("Some error occurred: ${(state.value as Error).message}")
+                            is Success -> {
+                                CharacterList((state.value as Success).characters)
+                            }
+
+                            is Error -> {
+                                Text("Some error occurred: ${(state.value as Error).message}")
+                            }
                         }
                     }
                 }
