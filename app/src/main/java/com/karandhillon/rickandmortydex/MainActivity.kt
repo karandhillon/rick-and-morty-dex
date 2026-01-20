@@ -1,5 +1,6 @@
 package com.karandhillon.rickandmortydex
 
+import CharacterDetailScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,18 +10,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.karandhillon.rickandmortydex.network.RickAndMortyApiService
-import com.karandhillon.rickandmortydex.ui.CharacterList
-import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Error
-import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Loading
-import com.karandhillon.rickandmortydex.ui.CharacterListUiState.Success
+import com.karandhillon.rickandmortydex.ui.CharacterListScreen
 import com.karandhillon.rickandmortydex.ui.theme.RickAndMortyDexTheme
-import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -29,39 +29,52 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val retrofit =
-            createRetrofit(
-                baseUrl = "https://rickandmortyapi.com/api/",
-                converterFactory = GsonConverterFactory.create(),
-            )
-        val rickAndMortyApiService = retrofit.create(RickAndMortyApiService::class.java)
-        val characterListViewModel: CharacterListViewModel by viewModels {
+        val mainActivityViewModel: MainActivityViewModel by viewModels {
             viewModelFactory {
                 initializer {
-                    CharacterListViewModel(rickAndMortyApiService)
+                    val rickAndMortyApiService = Retrofit
+                        .Builder()
+                        .baseUrl("https://rickandmortyapi.com/api/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(RickAndMortyApiService::class.java)
+
+                    MainActivityViewModel(rickAndMortyApiService)
                 }
             }
         }
 
         setContent {
             RickAndMortyDexTheme {
-                characterListViewModel.fetchCharacters()
+                val characters by mainActivityViewModel.characters.collectAsStateWithLifecycle()
+                val navController = rememberNavController()
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
-                        val state = characterListViewModel.characterListUiState.collectAsStateWithLifecycle()
-
-                        when (state.value) {
-                            is Loading -> {
-                                Text("Loading, please wait!")
+                NavHost(
+                    navController = navController,
+                    startDestination = "character_list"
+                ) {
+                    composable("character_list") {
+                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                            Column(modifier = Modifier.padding(innerPadding)) {
+                                CharacterListScreen(
+                                    characters,
+                                    Modifier.padding(innerPadding),
+                                    ) { characterId ->
+                                    navController.navigate("character_details/$characterId")
+                                }
                             }
+                        }
+                    }
+                    composable("character_details/{characterId}") { backStackEntry ->
+                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                            Column(modifier = Modifier.padding(innerPadding)) {
+                                val characterId = backStackEntry.arguments?.getString("characterId") ?: ""
 
-                            is Success -> {
-                                CharacterList((state.value as Success).characters)
-                            }
-
-                            is Error -> {
-                                Text("Some error occurred: ${(state.value as Error).message}")
+                                characters.find { it.id == characterId.toInt() }?.let { character ->
+                                    CharacterDetailScreen(character) {
+                                        navController.popBackStack()
+                                    }
+                                }
                             }
                         }
                     }
@@ -69,14 +82,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    private fun createRetrofit(
-        baseUrl: String,
-        converterFactory: Converter.Factory,
-    ): Retrofit =
-        Retrofit
-            .Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(converterFactory)
-            .build()
 }

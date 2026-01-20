@@ -1,6 +1,7 @@
 package com.karandhillon.rickandmortydex.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,12 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.karandhillon.rickandmortydex.R
 import com.karandhillon.rickandmortydex.network.model.Character
-import com.karandhillon.rickandmortydex.network.model.LocationInfo
 
 @Composable
 private fun getStatusColor(status: String): Color =
@@ -45,11 +43,15 @@ private fun getStatusColor(status: String): Color =
     }
 
 @Composable
-fun CharacterItem(character: Character) {
+fun CharacterItem(
+    character: Character,
+    onCharacterClick: (characterId: Int) -> Unit,
+    ) {
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .clickable { onCharacterClick(character.id) }
                 .padding(vertical = 4.dp, horizontal = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors =
